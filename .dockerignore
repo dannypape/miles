@@ -1,0 +1,5 @@
+node_modules
+caches
+.git
+Dockerfile*
+.dockerignore

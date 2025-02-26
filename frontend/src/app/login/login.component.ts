@@ -184,7 +184,8 @@ ngOnInit() {
 
     this.sharedService.login(this.email, this.password).subscribe(
       (response: any) => {
-        console.log("✅ Login Response:", response);
+        console.log("✅ Login Response:", response); 
+        
   
         // Ensure the response contains both tokens and userId.
         if (response.token && response.refreshToken) {
