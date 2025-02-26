@@ -45,7 +45,7 @@ Thumbs.db
 /frontend/coverage
 /frontend/libpeerconnection.log
 /frontend/testem.log
-/frontend//typings
+/frontend/typings
 
 # System files
 .DS_Store
