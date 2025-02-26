@@ -39,14 +39,14 @@ Thumbs.db
 /frontend/.history/*
 
 # Miscellaneous
-/frontend/.angular/cache
-/frontend/.sass-cache/
-/frontend/connect.lock
-/frontend/coverage
-/frontend/libpeerconnection.log
-/frontend/testem.log
-/frontend/typings
+# /frontend/.angular/cache
+# /frontend/.sass-cache/
+# /frontend/connect.lock
+# /frontend/coverage
+# /frontend/libpeerconnection.log
+# /frontend/testem.log
+# /frontend/typings
 
-# System files
-.DS_Store
-Thumbs.db
+# # System files
+# .DS_Store
+# Thumbs.db
