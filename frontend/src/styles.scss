@@ -22,14 +22,19 @@ $my-theme: mat.define-light-theme((
 // 🚀 Apply the theme globally
 @include mat.all-component-themes($my-theme);
 
-// .mat-mdc-button {
-//   color: whredite !important;  // Ensures text color stays white
+
+// html, body {
+//   height: auto;
+//   overflow: auto !important; /* ✅ Allows scrolling */
 // }
 
-// .mat-mdc-raised-button {
-//   background-color: mat.get-color-from-palette($my-primary) !important;
-//   color: red !important;
+// body.modal-open {
+//   overflow: hidden !important; /* ✅ Prevents background scrolling when modal is open */
 // }
+
+html {
+  height: 100%;
+}
 
 .example-spacer {
   flex: 1 1 auto;
@@ -288,16 +293,6 @@ mat-icon {
     }
   }
 
-  // .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
-  //   color: red;
-  // }
-  // .mat-mdc-form-field.mat-mdc-form-field-type-mat-input {
-  //   --mdc-filled-text-field-active-indicator-color: black !important;
-  // }
-  // .mat-mdc-form-field.mat-focused {
-  //   --mdc-filled-text-field-active-indicator-color: black !important; /* For filled inputs */
-  //   --mdc-outlined-text-field-focus-outline-color: black !important; /* For outlined inputs */
-  // }
   
 }
 
@@ -313,53 +308,155 @@ mat-icon {
 
 
 
-
-
-
-// @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
-
-// /* Apply the primary font to the whole app */
-// body {
-//   font-family: 'Poppins', sans-serif !important;
-//   background-color: #fff; /* Dark theme to match the mockup */
-//   color: #000;
-// }
-
-// /* Use Orbitron for futuristic, large text */
-// h1, h2, h3 {
-//   font-family: 'Orbitron', sans-serif;
-//   font-weight: 700;
-// }
-
-// /* Apply the font to buttons */
-// button {
-//   font-family: 'Poppins', sans-serif;
-//   font-weight: 600;
-//   text-transform: uppercase;
-//   border-radius: 8px;
-// }
-
-// /* Apply large numbers styling */
-// .big-numbers {
-//   font-family: 'Orbitron', sans-serif;
-//   font-size: 3rem;
-//   font-weight: bold;
-//   color: #FFD700; /* Gold color for emphasis */
-// }
-
-// html, body { height: 100%; }
-// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-// .miles-toast {
-//   background-color: #673ab7 !important; // Purple background
-//   color: white !important;
-//   font-weight: bold;
+// .mat-snack-bar-container {
+//   position: fixed !important;
+//   bottom: 20px !important;
+//   right: 20px !important;
+//   left: auto !important;
+//   top: auto !important;
+//   z-index: 99999 !important;
+//   max-width: 350px;
+//   padding: 16px;
 //   font-size: 16px;
-// }
-
-// .balance-toast {
-//   background-color: #4caf50;
-//   color: white;
 //   font-weight: bold;
+//   background: #673ab7 !important; /* Deep Purple */
+//   color: white !important;
+//   border-radius: 5px;
+//   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
 // }
 
+// /* Reset default overlay container behavior */
+// .cdk-overlay-container {
+//   position: fixed !important;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   z-index: 1000 !important;
+//   pointer-events: none; /* ✅ Allow interactions with page when no modal is open */
+// }
+
+// .cdk-overlay-backdrop {
+//   background: rgba(0, 0, 0, 0.5) !important; /* ✅ Semi-transparent backdrop */
+//   pointer-events: auto; /* ✅ Allow interaction with the modal */
+// }
+
+// .cdk-global-overlay-wrapper {
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   min-height: 100vh;
+//   overflow-y: auto; /* ✅ Allows scrolling inside modal */
+//   pointer-events: auto;
+// }
+
+// /* Fix Date Picker Position */
+// .mat-datepicker-content {
+//   position: unset !important; /* ✅ Allow it to position relative to input */
+// }
+
+
+
+.cdk-overlay-container {
+  z-index: 1000;
+}
+
+.cdk-overlay-container, .cdk-global-overlay-wrapper {
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.cdk-overlay-container {
+    position: fixed;
+}
+
+.cdk-overlay-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  opacity: 0;
+}
+
+.cdk-overlay-backdrop-showing {
+  opacity: 1;
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, .32);
+}
+
+.cdk-overlay-backdrop {
+  z-index: 1000;
+  transition: opacity 400mscubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cdk-global-overlay-wrapper {
+  display: flex;
+  position: absolute;
+}
+
+.cdk-global-overlay-wrapper {
+  z-index: 1000;
+}
+
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: var(--mat-dialog-container-max-width, 560px);
+  min-width: var(--mat-dialog-container-min-width, 280px);
+}
+
+.cdk-overlay-pane {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: flex;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.cdk-overlay-pane {
+  z-index: 1000;
+}
+
+.cdk-visually-hidden {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+  outline: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  left: 0;
+}
+
+.mat-mdc-dialog-container {
+  width: 100%;
+  height: 100%;
+  display: block;
+  box-sizing: border-box;
+  max-height: inherit;
+  min-height: inherit;
+  min-width: inherit;
+  max-width: inherit;
+  outline: 0;
+}
+
+.cdk-overlay-pane {
+  position: absolute;
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: flex;
+  max-width: 100%;
+  max-height: 100%;
+}

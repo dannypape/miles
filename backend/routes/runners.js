@@ -8,32 +8,6 @@ const MilesLog = require("../models/MilesLog");  // ✅ Import MilesLog model
 const moment = require("moment-timezone");
 // ✅ Middleware to check admin access
 const isAdmin = async (req, res, next) => {
-    // try {
-    //     console.log("🔍 Checking Admin Access - Decoded Token:", req.user);
-
-    //     if (!req.user || !req.user._id) {
-    //         console.error("❌ Missing user ID in request.");
-    //         return res.status(401).json({ error: "Unauthorized. Missing admin user ID." });
-    //     }
-
-    //     // ✅ Fetch the user from DB using the decoded token
-    //     const user = await User.findById(req.user._id);
-    //     if (!user) {
-    //         console.error("❌ User not found in database.");
-    //         return res.status(404).json({ error: "User not found." });
-    //     }
-
-    //     if (!user.isAdmin) {
-    //         console.error("❌ Unauthorized. User is not an admin.");
-    //         return res.status(403).json({ error: "Unauthorized. Admins only." });
-    //     }
-
-    //     console.log("✅ Admin check passed for:", user.name);
-    //     next();
-    // } catch (error) {
-    //     console.error("❌ Admin check error:", error);
-    //     res.status(500).json({ error: "Internal server error" });
-    // }
     try {
         console.log("🔍 Checking Admin Access - Decoded Token:", req.user); // ✅ Log `req.user`
 
@@ -108,6 +82,19 @@ router.post("/:runnerId/log", auth, async (req, res) => {
                 miles: log.miles
             }))
         });
+        // ✅ Emit logMiles to trigger the toast notification
+        io.emit("logMiles", { 
+            user: `${runner.firstName} ${runner.lastName}`, 
+            miles: miles 
+        });
+        // console.log("📡 Emitting WebSocket event: logMiles...");
+        // io.emit("logMiles", { 
+        //     runnerId, 
+        //     miles, 
+        //     date: moment(logDate).format("M/D/YYYY"),
+        //     totalMiles: runner.totalMiles,
+        //     logs: await MilesLog.find({ runnerId }).sort({ date: -1 })
+        // });
 
         res.json({ message: "Miles logged successfully for runner!", milesLog: newLog });
     } catch (error) {
@@ -125,14 +112,16 @@ router.post("/", auth, isAdmin, async (req, res) => {
             return res.status(400).json({ error: "First name and last name are required" });
         }
 
-        if (!req.user || !req.user._id) {
+        console.log("IM THE REQUEST: ",req)
+
+        if (!req.user || !req.user.userId) {
             return res.status(401).json({ error: "Unauthorized. Missing admin user ID." });
         }
 
         const newRunner = new Runner({
             firstName,
             lastName,
-            createdBy: req.user._id // ✅ FIX: Ensure `createdBy` is set correctly
+            createdBy: req.user.userId // ✅ FIX: Ensure `createdBy` is set correctly
         });
 
         await newRunner.save();
@@ -214,6 +203,68 @@ router.get("/", auth, isAdmin, async (req, res) => {
         res.json(runnersWithLogs);
     } catch (error) {
         console.error("❌ Error fetching runners:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+router.delete("/users", auth, isAdmin, async (req, res) => {
+    try {
+        const adminUserId = req.user.userId; // ✅ Ensure admin's ID is saved
+
+        console.log("🔍 Deleting all users except admin:", adminUserId);
+
+        // ✅ Find all users except the admin
+        const usersToDelete = await User.find({ _id: { $ne: adminUserId } });
+
+        if (!usersToDelete.length) {
+            return res.json({ message: "No users to delete." });
+        }
+
+        // ✅ Get all user IDs to delete
+        const userIds = usersToDelete.map(user => user._id);
+
+        // ✅ Delete users
+        await User.deleteMany({ _id: { $in: userIds } });
+
+        // ✅ Delete miles logs associated with these users
+        await MilesLog.deleteMany({ userId: { $in: userIds } });
+
+        console.log(`✅ Deleted ${usersToDelete.length} users and their miles logs`);
+
+        res.json({ message: `Deleted ${usersToDelete.length} users and their miles logs.` });
+    } catch (error) {
+        console.error("❌ Error deleting users:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+
+router.delete("/runners", auth, isAdmin, async (req, res) => {
+    try {
+        console.log("🔍 Deleting all runners...");
+
+        // ✅ Find all runners
+        const runnersToDelete = await Runner.find();
+        if (!runnersToDelete.length) {
+            return res.json({ message: "No runners to delete." });
+        }
+
+        // ✅ Get runner IDs
+        const runnerIds = await Runner.find().distinct("_id");
+
+        // ✅ Delete all runners
+        await Runner.deleteMany({});
+
+        // ✅ Delete miles logs associated with runners
+        await MilesLog.deleteMany({ runnerId: { $in: runnerIds } });
+
+        console.log(`✅ Deleted ${runnersToDelete.length} runners and their miles logs`);
+
+        io.emit("runnersUpdated");  // ✅ Notify clients of the update
+
+        res.json({ message: `Deleted ${runnersToDelete.length} runners and their miles logs.` });
+    } catch (error) {
+        console.error("❌ Error deleting runners:", error);
         res.status(500).json({ error: "Server error" });
     }
 });

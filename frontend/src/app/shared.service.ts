@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from './environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SharedService {
+
   private tokenExpiredSource = new BehaviorSubject<boolean>(false);
   tokenExpired$ = this.tokenExpiredSource.asObservable();
 
@@ -25,7 +28,7 @@ export class SharedService {
   private balanceHistorySource = new BehaviorSubject<any[]>([]);
   balanceHistory$ = this.balanceHistorySource.asObservable();
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   private tokenIsValid(): boolean {
     const token = localStorage.getItem('token');
@@ -39,6 +42,17 @@ export class SharedService {
       console.warn("🔴 Invalid token detected:", error);
       return false; // Invalid token
     }
+
+    
+  }
+
+  // ✅ Implement Login Method
+  login(email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/auth/login`, { email, password });
+  }
+
+  refreshToken(refreshToken: string) {
+    return this.http.post<any>(`${environment.apiUrl}/api/auth/refresh`, { refreshToken });
   }
 
   updateTokenExpired(status: boolean) {
@@ -78,10 +92,15 @@ export class SharedService {
 
   logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("userName");
     localStorage.removeItem("isAdmin");
     localStorage.removeItem("userId");
 
+    // this.isLoggedInSource.next(false);
+    // this.isAdminSource.next(false);
+    // this.userNameSource.next('');
+    // this.setLoggedIn(false);
     this.isLoggedInSource.next(false);
     this.isAdminSource.next(false);
     this.userNameSource.next('');

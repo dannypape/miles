@@ -25,6 +25,7 @@ app.use(cors({
     credentials: true
 }));
 
+// console.log("JWT_SECRET:", process.env.JWT_SECRET);
 app.use(express.json());
 
 // ✅ MongoDB Connection
@@ -44,12 +45,14 @@ const venmoRoutes = require("./routes/venmo")(io);
 const milesRoutes = require("./routes/miles")(io);  // ✅ Now `io` is initialized before being passed
 // const runnersRoute = require("./routes/runners");
 const runnersRoutes = require("./routes/runners")(io);
+const adminRoutes = require("./routes/admin")(io); 
 
 // ✅ Define API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/miles", milesRoutes);
 app.use("/api/venmo", venmoRoutes);
 app.use("/api/runners", runnersRoutes);
+app.use("/api/admin", adminRoutes);  // ✅ Add this line to register admin routes
 // app.use("/api/user", authRoutes);
 
 console.log("Routes registered: /api/user, /api/auth");
@@ -114,6 +117,7 @@ io.on("connection", (socket) => {
         }
 
         try {
+            let submitterName = "Unknown"; // Default
             let user = null;
             let runner = null;
 
@@ -123,6 +127,7 @@ io.on("connection", (socket) => {
                     console.error("❌ User not found:", data.userId);
                     return;
                 }
+                submitterName = `${user.firstName} ${user.lastName}`;
             }
 
             if (data.runnerId) {
@@ -131,6 +136,7 @@ io.on("connection", (socket) => {
                     console.error("❌ Runner not found:", data.runnerId);
                     return;
                 }
+                submitterName = `${runner.firstName} ${runner.lastName}`;
             }
 
             const newLog = new MilesLog({
@@ -187,10 +193,26 @@ io.on("connection", (socket) => {
             let sortedUsers = Object.values(groupedLogs).sort((a, b) => b.totalMiles - a.totalMiles);
 
             console.log("📡 Emitting updateMiles event with:", sortedUsers);
+            console.log("SUBMITTED NAME: ", submitterName)
             io.emit("updateMiles", {
                 totalMiles: logs.reduce((sum, log) => sum + log.miles, 0),
                 logs,
-                groupedLogs: sortedUsers
+                groupedLogs: sortedUsers,
+                lastSubmission: { 
+                    user: submitterName, 
+                    miles: data.miles,
+                    userId: user ? user._id : null,
+                    runnerId: runner ? runner._id : null 
+                }
+            });
+            // ✅ Debugging: Log event details before emitting
+            console.log("📢 Emitting updateMiles event:");
+            console.log("   - Total Miles:", logs.reduce((sum, log) => sum + log.miles, 0));
+            console.log("   - Last Submission:", { 
+                user: submitterName, 
+                miles: data.miles,
+                userId: user ? user._id : null,
+                runnerId: runner ? runner._id : null 
             });
 
         } catch (error) {

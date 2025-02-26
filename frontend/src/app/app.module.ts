@@ -45,7 +45,12 @@ const config: SocketIoConfig = { url: `${environment.apiUrl}`, options: {} }; //
     MatDatepickerModule, // ✅ Provide MatDatepickerModule
     MatNativeDateModule, // ✅ Provide MatNativeDateModule
     MatMomentDateModule, // ✅ Provide MatMomentDateModule
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptorService, multi: true }
+    AuthInterceptorService,
+    { 
+      provide: HTTP_INTERCEPTORS, 
+      useClass: AuthInterceptorService, 
+      multi: true 
+    }
   ],
   declarations: [
     AppComponent,

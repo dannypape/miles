@@ -121,12 +121,14 @@
 
           <div class="miles-container">
             <form class="miles-form">
+              <div class="date-field-container">
               <mat-form-field class="full-width">
                 <mat-label>Date</mat-label>
                 <input matInput [matDatepicker]="picker" [(ngModel)]="logDate" name="logDate">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker> 
               </mat-form-field>
+            </div>
               <mat-form-field class="full-width">
                 <mat-label>Enter Miles Ran</mat-label>
                 <input matInput type="number" [(ngModel)]="milesToLog" placeholder="Miles" [min]="0" name="milesToLog">

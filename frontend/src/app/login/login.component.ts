@@ -181,36 +181,45 @@ ngOnInit() {
   // }
   loginUser() {
     const loginData = { email: this.email, password: this.password };
-  
-    this.http.post(`${environment.apiUrl}/api/auth/login`, loginData).subscribe({
-      next: (response: any) => {
+
+    this.sharedService.login(this.email, this.password).subscribe(
+      (response: any) => {
         console.log("✅ Login Response:", response);
-        // ✅ Ensure userId is stored in localStorage
+  
+        // Ensure the response contains both tokens and userId.
+        if (response.token && response.refreshToken) {
+          localStorage.setItem("token", response.token);
+          localStorage.setItem("refreshToken", response.refreshToken); // Store refresh token
+        } else {
+          console.error("❌ Missing tokens in response!");
+        }
+  
+        // Make sure userId is stored as well
         if (response.userId) {
-          localStorage.setItem('userId', response.userId);
+          localStorage.setItem("userId", response.userId);
         } else {
           console.error("❌ Missing userId in response!");
         }
   
-        localStorage.setItem('token', response.token);
-        localStorage.setItem('userName', response.name);
-        localStorage.setItem('isAdmin', response.isAdmin ? 'true' : 'false'); // ✅ Store admin flag
-        // this.sharedService.checkLoginStatus(); 
+        localStorage.setItem("userName", response.name);
+        localStorage.setItem("isAdmin", response.isAdmin ? "true" : "false");
   
-        // ✅ Update SharedService
+        // Update the shared service
         this.sharedService.updateUserName(response.name);
         this.sharedService.updateIsAdmin(response.isAdmin);
         this.sharedService.checkLoginStatus();
   
+        // Redirect based on password reset requirement
         if (response.forcePasswordChange) {
-          this.router.navigate(['/reset-password']);
+          this.router.navigate(["/reset-password"]);
         } else {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(["/dashboard"]);
         }
       },
-      error: (err) => {
+      (error) => {
+        console.error("❌ Login error:", error);
         this.errorMessage = "Invalid email or password.";
       }
-    });
+    );
   }
 }

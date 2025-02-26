@@ -76,6 +76,17 @@ export class DashboardComponent implements OnInit {
         this.isAdmin = status;
     });
 
+    if (!this.socket.hasListeners("logMiles")) {
+      this.socket.on("logMiles", (data: any) => {
+        console.log("📡 logMiles WebSocket event received!", data);
+
+        if (data && data.user && data.miles) {
+            this.showMilesToast(data.user, data.miles);
+        } else {
+            console.warn("⚠️ Invalid logMiles event received:", data);
+        }
+    });
+    }
     if (!this.socket.hasListeners("updateMiles")) {
       this.socket.on("updateMiles", (data: any) => {
           console.log("🔹 Real-time update received in DashboardComponent:", data);
@@ -89,6 +100,19 @@ export class DashboardComponent implements OnInit {
           } else {
               // ✅ If new user, re-fetch data
               this.fetchData();
+          }
+
+          // ✅ Show toast notification for all users when miles are logged
+          if (data.lastSubmission) {
+              console.log("📢 Last Submission: ", data.lastSubmission);
+
+              if (data.lastSubmission.runnerId) {
+                  console.log("🏃 Miles logged for a runner:", data.lastSubmission.runnerId);
+              } else {
+                  console.log("👤 Miles logged for a user:", data.lastSubmission.userId);
+              }
+
+              this.showMilesToast(data.lastSubmission.user, data.lastSubmission.miles);
           }
       });
     }
@@ -173,38 +197,32 @@ showBalanceToast(balanceDifference: number, additionalMiles: number): void {
       `🎉 Venmo balance increased by $${balanceDifference}. ${additionalMiles} more miles added!`,
       "Close",
       {
-          duration: 5000,
-          horizontalPosition: "right",
-          verticalPosition: "top",
+          duration: 0,
+          horizontalPosition: "end",
+          verticalPosition: "bottom",
           panelClass: ["balance-toast"]
       }
   );
 }
 
-
-
-
-
-
-
-
-  
-
-  // ✅ Show a toast notification
-  showMilesToast(name: string, miles: number): void {
-    this.snackBar.open(`${name} logged ${miles} miles! 🏃`, "Close", {
-      duration: 5000,
-      horizontalPosition: "right",
-      verticalPosition: "top",
-      panelClass: ["miles-toast"]
-    });
-  }
+// ✅ Show a toast notification
+showMilesToast(name: string, miles: number): void {
+  this.snackBar.open(`${name} logged ${miles} miles! 🏃`, "Close", {
+    duration: 5000,
+    horizontalPosition: "end",
+    verticalPosition: "bottom",
+    panelClass: ["miles-toast"]
+  });
+}
 
 
 
 fetchData(): void {
   const token = localStorage.getItem("token");
   const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
+
+  const expansionStates = new Map(this.groupedLogs.map(user => [user.userId || user.runnerId, user.expanded]));
+
 
   this.http.get<{ totalMiles: number; logs: any[]; groupedLogs: any[] }>(
       `${environment.apiUrl}/api/miles`, { headers }
@@ -221,6 +239,7 @@ fetchData(): void {
                   ...log,
                   date: moment(log.date).tz("America/New_York").format("M/D/YYYY")  // ✅ Format as MM/DD/YYYY
               })),
+              expanded: expansionStates.get(user.userId) || false, // ✅ Restore expansion state
               movedUp: user.movedUp === true
           })) : [];
 
@@ -300,6 +319,13 @@ fetchData(): void {
 
     console.log("📤 Sending logMiles event:", milesData);
     this.socket.emit("logMiles", milesData);
+
+    const user = this.groupedLogs.find(u => u.userId === milesData.userId || u.runnerId === milesData.runnerId);
+    if (user) {
+        user.totalMiles += milesData.miles;
+        user.logs.unshift({ date: formattedDate, miles: milesData.miles });
+        this.groupedLogs = [...this.groupedLogs];  // ✅ Trigger UI update
+    }
 
     this.milesToLog = null; // Reset input
     this.setDefaultLogDate();
@@ -491,8 +517,10 @@ initBarChart(milesPerDay: { date: string, miles: number }[]): void {
     const dialogRef = this.dialog.open(VenmoBalanceModalComponent, {
       width: '400px',
       data: { balance: this.venmoBalance },
-      panelClass: 'custom-modal-container',
-      position: { top: '50vh', left: '50vw' }, // Center the modal
+      disableClose: true,  // Prevents accidental closing
+      hasBackdrop: true,  // Adds a dark overlay
+      // position: { top: '50%', left: '50%' }, // ✅ Forces modal to center
+      // position: { top: '50vh', left: '50vw' }, // Center the modal
     });
 
     dialogRef.afterClosed().subscribe((result: number | undefined) => {
@@ -508,7 +536,11 @@ initBarChart(milesPerDay: { date: string, miles: number }[]): void {
 
     const dialogRef = this.dialog.open(EditMilesModalComponent, {
       width: '400px',
-      data: { entryId: entry._id, miles: entry.miles, date: entry.date }
+      data: { entryId: entry._id, miles: entry.miles, date: entry.date },
+      disableClose: true,  // Prevents accidental closing
+      hasBackdrop: true,  // Adds a dark overlay
+      // position: { top: '50%', left: '50%' }, // ✅ Forces modal to center
+      // position: { top: '50vh', left: '50vw' }, // Center the modal
     });
 
     dialogRef.afterClosed().subscribe(result => {

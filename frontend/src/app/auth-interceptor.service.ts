@@ -111,14 +111,19 @@
 
 import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { SharedService } from './shared.service';
 import { HttpClient } from '@angular/common/http';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root', // ✅ Ensures service is globally available
+})
 export class AuthInterceptorService implements HttpInterceptor {
+  private isRefreshing = false;
+  private refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(null);
+
   constructor(
     private sharedService: SharedService,
     private router: Router,
@@ -126,103 +131,141 @@ export class AuthInterceptorService implements HttpInterceptor {
   ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let token = localStorage.getItem('token');
+    let authReq = req;
+    const token = localStorage.getItem("token");
 
+    // if (token) {
+    //   req = req.clone({
+    //     setHeaders: { Authorization: `Bearer ${token}` }
+    //   });
+    // }
     if (token) {
-      req = req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` }
-      });
+      authReq = this.addTokenHeader(req, token);
     }
 
-    return next.handle(req).pipe(
+    return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // if (error.status === 401) {
-        //   console.warn('🔴 Token expired! Attempting refresh...');
-
-        //   return this.refreshToken().pipe(
-        //     switchMap((newToken) => {
-        //       if (newToken) {
-        //         console.log('🔄 Token refreshed successfully!');
-        //         localStorage.setItem('token', newToken);
-
-        //         // Retry the failed request with the new token
-        //         req = req.clone({
-        //           setHeaders: { Authorization: `Bearer ${newToken}` }
-        //         });
-
-        //         return next.handle(req);
-        //       } else {
-        //         console.warn('⛔ Token refresh failed. Redirecting to login.');
-        //         this.handleLogout();
-        //         return throwError(error);
-        //       }
-        //     }),
-        //     catchError(() => {
-        //       console.warn('⛔ Token refresh request failed. Redirecting to login.');
-        //       this.handleLogout();
-        //       return throwError(error);
-        //     })
-        //   );
-        // }
-        if (error.status === 401) {
-          console.warn("🔴 Token expired! Attempting refresh...");
-        
-          return this.refreshToken().pipe(
-            switchMap(newToken => {
-              if (newToken) {
-                console.log("🔄 Token refreshed successfully!");
-                localStorage.setItem("token", newToken);
-        
-                // Retry request with new token
-                req = req.clone({
-                  setHeaders: { Authorization: `Bearer ${newToken}` }
-                });
-        
-                return next.handle(req);
-              } else {
-                console.warn("⛔ Refresh failed, forcing logout.");
-                this.handleLogout();
-                return throwError(error);
-              }
-            }),
-            catchError(() => {
-              console.warn("⛔ Token refresh failed, redirecting.");
-              this.handleLogout();
-              return throwError(error);
-            })
-          );
-        }
-
-        return throwError(error);
+          if (error.status === 401) {
+              return this.handle401Error(req, next);
+          }
+          return throwError(error);
       })
     );
+
+    // return next.handle(req).pipe(
+    //   catchError((error: HttpErrorResponse) => {
+        
+    //     if (error.status === 401) {
+    //       console.warn("🔴 Token expired! Attempting refresh...");
+    //       const refreshToken = localStorage.getItem('refreshToken');
+    //       if (refreshToken) {
+    //         // Attempt to refresh the access token
+    //         return this.authService.refreshToken(refreshToken).pipe(
+    //           switchMap((newTokens: any) => {
+    //             localStorage.setItem('token', newTokens.token);
+    //             // Retry the failed request with the new access token
+    //             const newAuthReq = req.clone({
+    //               setHeaders: { Authorization: `Bearer ${newTokens.token}` }
+    //             });
+    //             return next.handle(newAuthReq);
+    //           }),
+    //           catchError(refreshError => {
+    //             // Refresh token is invalid or expired
+    //             this.handleLogout();
+    //             return throwError(refreshError);
+    //           })
+    //         );
+    //       } else {
+    //         // No refresh token available, force logout
+    //         this.handleLogout();
+    //       }
+
+
+    //       // return this.refreshToken().pipe(
+    //       //   switchMap(newToken => {
+    //       //     if (newToken) {
+    //       //       console.log("🔄 Token refreshed successfully!");
+    //       //       localStorage.setItem("token", newToken);
+        
+    //       //       // Retry request with new token
+    //       //       req = req.clone({
+    //       //         setHeaders: { Authorization: `Bearer ${newToken}` }
+    //       //       });
+        
+    //       //       return next.handle(req);
+    //       //     } else {
+    //       //       console.warn("⛔ Refresh failed, forcing logout.");
+    //       //       this.handleLogout();
+    //       //       return throwError(error);
+    //       //     }
+    //       //   }),
+    //       //   catchError(() => {
+    //       //     console.warn("⛔ Token refresh failed, redirecting.");
+    //       //     this.handleLogout();
+    //       //     return throwError(error);
+    //       //   })
+    //       // );
+    //     }
+
+    //     return throwError(error);
+    //   })
+    // );
   }
 
-  // private refreshToken(): Observable<string | null> {
-  //   const refreshToken = localStorage.getItem('refreshToken');
-  //   if (!refreshToken) {
-  //     return throwError(null);
-  //   }
+  private addTokenHeader(req: HttpRequest<any>, token: string) {
+    return req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` },
+    });
+  }
 
-  //   return this.http.post<{ token: string }>('/api/auth/refresh', { refreshToken }).pipe(
-  //     switchMap((response) => {
-  //       return response.token ? [response.token] : throwError(null);
-  //     }),
-  //     catchError(() => throwError(null))
-  //   );
-  // }
-  private refreshToken(): Observable<string | null> {
+  private handle401Error(req: HttpRequest<any>, next: HttpHandler) {
+    if (!this.isRefreshing) {
+        this.isRefreshing = true;
+        this.refreshTokenSubject.next(null);
+
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) {
+            return throwError("No refresh token found");
+        }
+
+        return this.sharedService.refreshToken(refreshToken).pipe(
+            switchMap((newToken: any) => {
+                this.isRefreshing = false;
+                this.refreshTokenSubject.next(newToken.accessToken);
+                localStorage.setItem("token", newToken.accessToken);
+                return next.handle(this.addTokenHeader(req, newToken.accessToken));
+            }),
+            catchError((err) => {
+                this.isRefreshing = false;
+                this.sharedService.logout(); // Logout if refresh fails
+                return throwError(err);
+            })
+        );
+    } else {
+        return this.refreshTokenSubject.pipe(
+            filter(token => token !== null),
+            take(1),
+            switchMap(token => next.handle(this.addTokenHeader(req, token!)))
+        );
+    }
+  }
+
+  public refreshToken(): Observable<string | null> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
       console.warn("⛔ No refresh token found.");
       return throwError(null);
     }
   
-    return this.http.post<{ token: string }>('/api/auth/refresh', { refreshToken }).pipe(
+    return this.http.post<{ token: string, refreshToken: string }>(
+      '/api/auth/refresh', 
+      { refreshToken }
+    ).pipe(
       switchMap((response) => {
-        if (response.token) {
+        if (response.token && response.refreshToken) {
           console.log('🔄 Token refreshed successfully:', response.token);
           localStorage.setItem('token', response.token);
+          localStorage.setItem('refreshToken', response.refreshToken); 
           return [response.token];  // ✅ Return new token
         } else {
           console.warn('⛔ Refresh failed: No token returned.');

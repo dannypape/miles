@@ -14,10 +14,14 @@ export class ManageFundraiserComponent {
   constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
 
   /** ✅ Delete all users except the admin */
+  /** ✅ Delete all users except the admin */
   deleteUsers() {
     if (!confirm("Are you sure you want to delete all users (except yourself)?")) return;
 
-    this.http.delete(`${environment.apiUrl}/api/admin/users`).subscribe({
+    const token = localStorage.getItem("token");
+    this.http.delete(`${environment.apiUrl}/api/admin/users`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
       next: () => this.showSnackbar("All users (except admin) deleted"),
       error: () => this.showSnackbar("Failed to delete users", true)
     });
@@ -27,7 +31,10 @@ export class ManageFundraiserComponent {
   deleteRunners() {
     if (!confirm("Are you sure you want to delete all runners?")) return;
 
-    this.http.delete(`${environment.apiUrl}/api/admin/runners`).subscribe({
+    const token = localStorage.getItem("token");
+    this.http.delete(`${environment.apiUrl}/api/admin/runners`, {
+      headers: { Authorization: `Bearer ${token}` }
+    }).subscribe({
       next: () => this.showSnackbar("All runners deleted"),
       error: () => this.showSnackbar("Failed to delete runners", true)
     });
