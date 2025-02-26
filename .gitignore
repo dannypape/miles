@@ -22,21 +22,21 @@ Thumbs.db
 /frontend/yarn-error.log
 
 # IDEs and editors
-/frontend/.idea/
-/frontend/.project
-/frontend/.classpath
-/frontend/.c9/
-/frontend/*.launch
-/frontend/.settings/
-/frontend/*.sublime-workspace
+# /frontend/.idea/
+# /frontend/.project
+# /frontend/.classpath
+# /frontend/.c9/
+# /frontend/*.launch
+# /frontend/.settings/
+# /frontend/*.sublime-workspace
 
-# Visual Studio Code
-/frontend/.vscode/*
-/frontend/!.vscode/settings.json
-/frontend/!.vscode/tasks.json
-/frontend/!.vscode/launch.json
-/frontend/!.vscode/extensions.json
-/frontend/.history/*
+# # Visual Studio Code
+# /frontend/.vscode/*
+# /frontend/!.vscode/settings.json
+# /frontend/!.vscode/tasks.json
+# /frontend/!.vscode/launch.json
+# /frontend/!.vscode/extensions.json
+# /frontend/.history/*
 
 # Miscellaneous
 # /frontend/.angular/cache
