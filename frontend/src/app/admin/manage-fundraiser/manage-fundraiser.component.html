@@ -1,0 +1,20 @@
+<div class="admin-container">
+    <h1>Manage Fundraiser</h1>
+  
+    <!-- 🚨 Danger Zone -->
+    <section class="danger-zone">
+      <h2>Danger Zone</h2>
+      <button mat-button color="warn" (click)="deleteUsers()">Delete All Users</button>
+      <button mat-button color="warn" (click)="deleteRunners()">Delete All Runners</button>
+    </section>
+  
+    <!-- 🔄 Conversion Rate -->
+    <section class="conversion-rate">
+      <h2>Set Dollar-to-Mile Rate</h2>
+      <mat-form-field appearance="outline">
+        <mat-label>1 Mile = $</mat-label>
+        <input matInput type="number" [(ngModel)]="conversionRate">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="updateConversionRate()">Update</button>
+    </section>
+  </div>

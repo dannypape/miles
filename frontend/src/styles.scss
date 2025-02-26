@@ -1,0 +1,365 @@
+
+@use "@angular/material" as mat;
+
+@include mat.typography-hierarchy(mat.define-typography-config());
+
+// 🎨 Define your custom color palette
+$my-primary: mat.define-palette(mat.$blue-palette, 700); // Change primary color
+$my-accent: mat.define-palette(mat.$orange-palette, 600); // Change accent color
+$my-warn: mat.define-palette(mat.$red-palette); // Warning color
+
+// 🏗️ Create the theme
+$my-theme: mat.define-light-theme((
+  color: (
+    primary: $my-primary,
+    accent: $my-accent,
+    warn: $my-warn
+  ),
+  typography: mat.define-typography-config(), // Default typography
+  density: 0 // Default density
+));
+
+// 🚀 Apply the theme globally
+@include mat.all-component-themes($my-theme);
+
+// .mat-mdc-button {
+//   color: whredite !important;  // Ensures text color stays white
+// }
+
+// .mat-mdc-raised-button {
+//   background-color: mat.get-color-from-palette($my-primary) !important;
+//   color: red !important;
+// }
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+mat-sidenav {
+  width: 200px;
+}
+
+mat-sidenav-container {
+  height: 100vh;
+}
+
+mat-sidenav {
+  width: 250px;
+  box-shadow: 3px 0 6px rgba(0, 0, 0, 0.24);
+}
+
+mat-sidenav-content {
+  // padding: 16px;
+}
+
+mat-toolbar {
+  display: flex;
+  justify-content: space-between; // Optional: Distributes space between items
+  align-items: center; // Optional: Vertically centers items
+}
+
+.example-spacer {
+  flex: 1 1 auto;
+}
+
+mat-nav-list a mat-icon {
+  margin-right: 16px; // Add space between the icon and text
+}
+
+.nav-link-text {
+  vertical-align: middle; // Align text with the icon
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column; // Stack elements vertically
+  align-items: flex-start; // Align text to the left
+  margin-left: 16px; // Add some spacing from the menu button
+}
+
+.title-container small {
+  text-transform: uppercase; // Convert text to all caps
+  font-size: 0.75rem; // Adjust the font size as needed
+  opacity: 0.8; // Optional: Add some transparency for a subtle look
+  line-height: 1;
+}
+
+
+.mat-user-miles-logged {
+  padding: 16px;
+}
+
+mat-table {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.nested-table {
+  width: 100%;
+  margin: 8px 0;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.nested-table td {
+  padding: 8px;
+}
+
+.expanded-row {
+  background-color: #fafafa;
+}
+
+mat-icon {
+  cursor: pointer;
+}
+
+
+.dashboard-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  
+  justify-content: space-between; /* Adjust as needed */
+  align-items: stretch; /* This ensures all columns stretch to the same height */
+}
+
+.column {
+  flex: 1;
+  min-width: 250px;
+  margin: 0; /* Optional: Add some spacing between columns */
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats, .chart-card {
+  flex: 1; /* This makes the content inside the column stretch to fill the height */
+}
+
+
+/* Left Column */
+.stats {
+  background: #f5f5f5;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+// .highlight {
+//   font-weight: bold;
+//   color: #3f51b5; // Example: Use your theme's primary color
+// }
+
+.edit-icon {
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+/* Chart Cards */
+.chart-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+/* Responsive Behavior */
+@media (max-width: 768px) {
+  .column {
+    flex: 1 1 100%;
+  }
+}
+
+
+.expandable {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.expandable mat-icon {
+  margin-left: 8px;
+  font-size: 18px;
+}
+
+.nested-table-container {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+}
+
+.nested-table {
+  width: 100%;
+}
+
+.nested-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+.expanded-content {
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+}
+
+
+mat-accordion {
+  width: 100%;
+}
+
+mat-expansion-panel {
+  margin-bottom: 10px;
+}
+
+mat-expansion-panel-header {
+  background-color: #f5f5f5;
+}
+
+.nested-table-container {
+  padding: 16px;
+}
+
+.nested-table {
+  width: 100%;
+}
+
+.nested-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+body {
+  &.mat-typography {
+    margin: 0;
+    font-size: 16px;
+    height: 100vh;
+    flex-direction: column;
+
+    display: flex;
+    max-width: 100%; // ✅ Prevent overflow beyond the viewport
+    overflow-x: hidden; // ✅ Add some padding to prevent content from touching the screen edges
+    box-sizing: border-box;
+  }
+}
+
+
+
+
+.row {
+  padding: 1rem;
+  @media (min-width: 768px) {
+    padding: 1rem;
+  
+    & + .row {
+      margin-bottom: 2rem;
+    }
+  }
+  &.greeting {
+    margin-bottom: 0;
+    margin-top: 20px;
+    padding-bottom: 0;
+  }
+}
+
+.mat-drawer-content {
+  background-color: #fff;
+  .mat-mdc-card-outlined  {
+    border-radius: 12px;
+  }
+}
+
+mat-icon {
+  transition: transform 0.3s ease-in-out;
+}
+
+:root {
+  --mat-expansion-header-text-size: 18px;
+  --mat-expansion-container-text-size: 16px; // Change to your desired size
+  .mat-mdc-unelevated-button:not(:disabled) {
+    background-color: #333;
+    color: #fff;
+    transition: 250ms background ease-in-out;
+    &:hover {
+      background-color: #000;
+    }
+  }
+
+  // .mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  //   color: red;
+  // }
+  // .mat-mdc-form-field.mat-mdc-form-field-type-mat-input {
+  //   --mdc-filled-text-field-active-indicator-color: black !important;
+  // }
+  // .mat-mdc-form-field.mat-focused {
+  //   --mdc-filled-text-field-active-indicator-color: black !important; /* For filled inputs */
+  //   --mdc-outlined-text-field-focus-outline-color: black !important; /* For outlined inputs */
+  // }
+  
+}
+
+
+
+
+:host {
+  --mdc-filled-button-label-text-color: white !important;
+  --mdc-filled-button-container-color: #333 !important;
+
+}
+
+
+
+
+
+
+
+// @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+
+// /* Apply the primary font to the whole app */
+// body {
+//   font-family: 'Poppins', sans-serif !important;
+//   background-color: #fff; /* Dark theme to match the mockup */
+//   color: #000;
+// }
+
+// /* Use Orbitron for futuristic, large text */
+// h1, h2, h3 {
+//   font-family: 'Orbitron', sans-serif;
+//   font-weight: 700;
+// }
+
+// /* Apply the font to buttons */
+// button {
+//   font-family: 'Poppins', sans-serif;
+//   font-weight: 600;
+//   text-transform: uppercase;
+//   border-radius: 8px;
+// }
+
+// /* Apply large numbers styling */
+// .big-numbers {
+//   font-family: 'Orbitron', sans-serif;
+//   font-size: 3rem;
+//   font-weight: bold;
+//   color: #FFD700; /* Gold color for emphasis */
+// }
+
+// html, body { height: 100%; }
+// body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+// .miles-toast {
+//   background-color: #673ab7 !important; // Purple background
+//   color: white !important;
+//   font-weight: bold;
+//   font-size: 16px;
+// }
+
+// .balance-toast {
+//   background-color: #4caf50;
+//   color: white;
+//   font-weight: bold;
+// }
+

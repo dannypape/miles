@@ -1,0 +1,84 @@
+<div class="manage-runners-container" *ngIf="isAdmin">
+    <h1>Manage Runners</h1>
+  
+    <mat-card class="add-runner-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Add a New Runner</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form class="runner-form">
+          <mat-form-field class="full-width">
+            <mat-label>First Name</mat-label>
+            <input matInput type="text" [(ngModel)]="newRunner.firstName" name="firstName" placeholder="Enter first name" (ngModelChange)="checkFormValid()">
+          </mat-form-field>
+  
+          <mat-form-field class="full-width">
+            <mat-label>Last Name</mat-label>
+            <input matInput type="text" [(ngModel)]="newRunner.lastName" name="lastName" placeholder="Enter last name" (ngModelChange)="checkFormValid()">
+          </mat-form-field>
+  
+          <button mat-flat-button  (click)="addRunner()" [disabled]="!isFormValid">
+            <mat-icon>add</mat-icon> Add Runner
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="runner-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Runner List</mat-card-title>
+      </mat-card-header>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let runner of runners" [expanded]="runner.expanded">
+          <mat-expansion-panel-header (click)="toggleRunner(runner)">
+            <mat-panel-title>
+              <button mat-icon-button color="warn" (click)="deleteRunner(runner._id)">
+                <mat-icon>delete</mat-icon>
+              </button> {{ runner.firstName }} {{ runner.lastName }}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ runner.totalMiles }} miles
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+  
+          <div class="runner-actions">
+            <mat-form-field class="full-width">
+              <mat-label>Enter Miles Ran</mat-label>
+              <input matInput type="number" [(ngModel)]="runner.milesToLog" placeholder="Miles" [min]="0">
+            </mat-form-field>
+      
+            <mat-form-field class="full-width">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="runner.logDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker> 
+            </mat-form-field>
+      
+            <button mat-flat-button  class="submit-button" (click)="submitMiles(runner)" [disabled]="!runner.milesToLog">
+              Submit
+            </button>
+            
+          </div>
+  
+          <mat-table [dataSource]="runner.logs">
+            <ng-container matColumnDef="date">
+              <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+              <mat-cell *matCellDef="let log"> {{ log.date }} </mat-cell>
+            </ng-container>
+  
+            <ng-container matColumnDef="miles">
+              <mat-header-cell *matHeaderCellDef> Miles </mat-header-cell>
+              <mat-cell *matCellDef="let log"> {{ log.miles }} miles </mat-cell>
+            </ng-container>
+  
+            <mat-header-row *matHeaderRowDef="['date', 'miles']"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: ['date', 'miles']"></mat-row>
+          </mat-table>
+  
+          <!-- <div class="submit-miles-form">
+            <input type="number" [(ngModel)]="runner.milesToLog" placeholder="Miles" [min]="0">
+            <button mat-flat-button  (click)="submitMiles(runner)">Submit</button>
+          </div> -->
+        </mat-expansion-panel>
+      </mat-accordion>
+    </mat-card>
+  </div>

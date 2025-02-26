@@ -1,0 +1,71 @@
+<!-- <div class="container">
+    <h2>Register</h2>
+    <div *ngIf="!showVerification">
+        <input type="text" [(ngModel)]="firstName" name="firstName" placeholder="First name">
+        <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Last name">
+        <input type="email" [(ngModel)]="email" name="email" placeholder="Email">
+        <input type="password" [(ngModel)]="password" name="password" placeholder="Password">
+        <button (click)="registerUser()">Register</button>
+    </div> -->
+    
+    <!-- ✅ Show verification code input after registration -->
+ <!--   <div *ngIf="showVerification">
+        <input type="text" [(ngModel)]="verificationCode" placeholder="Enter Verification Code">
+        <button (click)="verifyCode()">Verify</button>
+    </div>
+    <p>Already have an account? <a routerLink="/login">Login</a></p>
+  </div> -->
+  
+  <div class="login-container">
+    <h1>Register</h1>
+  
+    <mat-card class="login-card" appearance="outlined">
+      <mat-card-content>
+        <div class="login-div">
+
+            <mat-form-field class="full-width">
+                <mat-label>First Name</mat-label>
+                <input matInput type="text" [(ngModel)]="firstName" name="firstName" placeholder="Enter first name" required>
+            </mat-form-field>
+
+            <mat-form-field class="full-width">
+                <mat-label>Last Name</mat-label>
+                <input matInput type="text" [(ngModel)]="lastName" name="lastName" placeholder="Enter last name" required>
+            </mat-form-field>
+
+          <mat-form-field class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="text" [(ngModel)]="email" name="email" placeholder="Enter email" required>
+          </mat-form-field>
+  
+          <mat-form-field class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput type="password" [(ngModel)]="password" name="password" placeholder="Enter password" required>
+          </mat-form-field>
+
+          <button mat-flat-button  (click)="registerUser()" >
+            Register
+          </button>
+          <div *ngIf="showVerification">
+            
+            <p>Check your email for the verification code</p>
+            <mat-form-field class="full-width">
+                
+                <mat-label>Verification Code</mat-label>
+                <input matInput type="text" [(ngModel)]="verificationCode" name="verificationCode" placeholder="Enter verification code">
+              </mat-form-field>
+    
+              <button mat-flat-button  (click)="verifyCode()" >
+                Verify
+              </button>
+            </div>
+        </div>
+
+        
+        <p>Already have an account? <a routerLink="/login">Login</a></p>
+        
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  

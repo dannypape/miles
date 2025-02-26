@@ -1,0 +1,167 @@
+
+    <!-- Greeting Section -->
+    <div class="greeting row">
+      <h1 *ngIf="isLoggedIn; else defaultGreeting">Howdy, {{ userName }}, thanks for participating!</h1>
+      <ng-template #defaultGreeting>
+        <h1>Welcome to the Fundraiser Dashboard</h1>
+      </ng-template>
+    </div>
+
+    <div class="dashboard-row row">
+      <!-- Left Column -->
+      <div class="column">
+        <mat-card class="stats" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Venmo Balance</mat-card-title>
+          </mat-card-header>
+          <div class="venmo-container">
+            <h2>${{ venmoBalance }} <span *ngIf="isAdmin">
+              <button mat-icon-button (click)="openModal()">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </span></h2>
+            
+
+            
+          </div>
+          <mat-card-header>
+            <mat-card-title>Goal</mat-card-title>
+          </mat-card-header>
+          <div class="venmo-container">
+          <h2 class="miles-heading">{{ milesNeeded }} miles</h2>
+        </div>
+        </mat-card>
+      </div>
+    
+      <!-- Middle Column -->
+      <div class="column">
+        <mat-card class="chart-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Total Miles Progress</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <canvas id="progressChart"></canvas>
+            <h3>Total Miles Ran: {{ totalMiles }}</h3>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    
+      <!-- Right Column -->
+      <div class="column">
+        <mat-card class="chart-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Total Miles Per Day</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <canvas id="barChart"></canvas>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <div class="dashboard-container row">
+      
+    
+      
+        <mat-card class="leaderboard-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>Participant Activity Board</mat-card-title>
+          </mat-card-header>
+        
+          <mat-card-content>
+            <mat-accordion *ngIf="groupedLogs && groupedLogs.length > 0">
+              <mat-expansion-panel *ngFor="let user of groupedLogs" [expanded]="user.expanded">
+                <mat-expansion-panel-header (click)="toggleRow(user)">
+                  <mat-panel-title>
+                    <mat-icon *ngIf="user.type === 'user'" class="user-icon">person</mat-icon>
+                    <mat-icon *ngIf="user.type === 'runner'" class="runner-icon">directions_run</mat-icon>
+                    {{ user.userName }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{ user.totalMiles }} miles
+                    <span *ngIf="user.movedUp" class="move-up-indicator">
+                      <mat-icon>arrow_upward</mat-icon> +{{ user.logs[user.logs.length - 1]?.miles }} miles
+                    </span>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+        
+                <!-- User logs table -->
+                <mat-table [dataSource]="user.logs">
+                  <ng-container matColumnDef="date">
+                    <mat-header-cell *matHeaderCellDef> Date </mat-header-cell>
+                    <mat-cell *matCellDef="let log"> {{ log.date }} </mat-cell>
+                  </ng-container>
+        
+                  <ng-container matColumnDef="miles">
+                    <mat-header-cell *matHeaderCellDef> Miles </mat-header-cell>
+                    <mat-cell *matCellDef="let log"> {{ log.miles }} miles 
+                      <span *ngIf="isAdmin">
+                        <button mat-icon-button (click)="openEditMilesModal(log)">
+                          <mat-icon>edit</mat-icon>
+                        </button>
+                      </span>
+                    </mat-cell>
+                  </ng-container>
+        
+                  <mat-header-row *matHeaderRowDef="displayedLogColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedLogColumns"></mat-row>
+                </mat-table>
+              </mat-expansion-panel>
+            </mat-accordion>
+          </mat-card-content>
+        </mat-card>
+      
+        <ng-container *ngIf="isLoggedIn">
+
+          <mat-card class="form-card" appearance="outlined">
+            <mat-card-header>
+              <mat-card-title>Log Your Miles</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+
+          <div class="miles-container">
+            <form class="miles-form">
+              <mat-form-field class="full-width">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="logDate" name="logDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker> 
+              </mat-form-field>
+              <mat-form-field class="full-width">
+                <mat-label>Enter Miles Ran</mat-label>
+                <input matInput type="number" [(ngModel)]="milesToLog" placeholder="Miles" [min]="0" name="milesToLog">
+              </mat-form-field>
+      
+              <button mat-flat-button class="submit-button" (click)="logMiles()" [disabled]="!milesToLog">
+                Submit
+              </button>
+            </form>
+            <!-- <div class="log-miles-form">
+              <mat-form-field class="full-width">
+                <mat-label>Enter Miles Ran</mat-label>
+                <input matInput type="number" [(ngModel)]="milesToLog" placeholder="Miles" [min]="0">
+              </mat-form-field>
+      
+              <mat-form-field class="full-width">
+                <mat-label>Date</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="logDate">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker> 
+              </mat-form-field>
+      
+              <button mat-flat-button  class="submit-button" (click)="logMiles()" [disabled]="!milesToLog">
+                Submit
+              </button>
+            </div> -->
+          </div>
+        </mat-card-content>
+          </mat-card>
+        </ng-container>
+    </div>
+   
+    <app-venmo-balance-modal 
+  *ngIf="showModal"
+  [venmoBalance]="venmoBalance" 
+  (updateBalance)="updateVenmoBalance($event)">
+</app-venmo-balance-modal>
+

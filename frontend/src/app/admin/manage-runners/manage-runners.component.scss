@@ -1,0 +1,84 @@
+// .manage-runners-container {
+//     max-width: 800px;
+//     margin: auto;
+//     padding: 20px;
+//   }
+  
+//   .add-runner {
+//     display: flex;
+//     gap: 10px;
+//     margin-bottom: 20px;
+//   }
+  
+//   .runner-card {
+//     width: 100%;
+//   }
+  
+//   .runner-actions {
+//     display: flex;
+//     gap: 10px;
+//     align-items: center;
+//     margin-bottom: 10px;
+//   }
+  
+//   mat-expansion-panel {
+//     background: #ffffff;
+//     margin-bottom: 5px;
+//   }
+  
+//   mat-list {
+//     padding: 10px;
+//     background: #f5f5f5;
+//     border-radius: 5px;
+//   }
+
+
+.manage-runners-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+}
+
+.add-runner-card {
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.runner-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  button {
+    align-self: flex-end;
+  }
+}
+
+.runner-card {
+  padding: 10px;
+}
+
+.runner-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.runner-logs-table {
+  width: 100%;
+  margin-top: 15px;
+}

@@ -1,0 +1,59 @@
+<!-- app.component.html -->
+  <mat-toolbar>
+    <button mat-icon-button class="example-icon" aria-label="Menu" *ngIf="isAdmin" (click)="toggleSidenav()">
+      <mat-icon [@menuToggle]="isSidenavOpen ? 'close' : 'menu'">
+        {{ isSidenavOpen ? 'close' : 'menu' }}
+      </mat-icon>
+    </button>
+    <!-- Title and Subtitle -->
+    <div class="title-container">
+      <span>CrossFit Cask Strength</span>
+      <small>Fundraiser</small>
+    </div>
+    <!-- Right Side: Buttons -->
+    <div style="margin-left: auto;">
+      <button mat-button aria-label="Logout" *ngIf="isLoggedIn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+      <button mat-button aria-label="Login" *ngIf="!isLoggedIn" routerLink="/login">
+        <mat-icon>login</mat-icon>
+        Login
+      </button>
+    </div>
+  </mat-toolbar>
+  <ng-container *ngIf="tokenExpired">
+    <div class="token-expired-warning">
+      <p>Your session has expired. Please reload to refresh your token.</p>
+      <button (click)="reloadPage()">Reload</button>
+    </div>
+  </ng-container>
+  <mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side" [(opened)]="isSidenavOpen">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/dashboard" (click)="toggleSidenavAndLog('Dashboard')">
+          <mat-icon>dashboard_2</mat-icon>
+          <span class="nav-link-text">Dashboard</span>
+        </a>
+
+        <a mat-list-item routerLink="/admin/create-user" (click)="toggleSidenavAndLog('Create User')">
+          <mat-icon>person_add</mat-icon>
+          <span class="nav-link-text">Create User</span>
+        </a>
+        
+        <a mat-list-item routerLink="/admin/runners" (click)="toggleSidenavAndLog('Manage Runners')">
+          <mat-icon>directions_run</mat-icon>
+          <span class="nav-link-text">Manage Runners</span>
+        </a>
+
+        <a mat-list-item routerLink="/admin/fundraiser" (click)="toggleSidenavAndLog('Manage Fundraiser')">
+          <mat-icon>folder_managed</mat-icon>
+          <span class="nav-link-text">Manage Fundraiser</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+  
+    <mat-sidenav-content class="mat-typography">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
